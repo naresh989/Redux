@@ -3,11 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectPostById, updatePost, deletePost } from "./postSlice";
 import { selectAllUsers } from "../users/usersSlice";
 import { useParams, useNavigate } from "react-router-dom";
-
+import { useUpdatePostMutation, useDeletePostMutation } from "./postSlice";
 const EditPostForm = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const { postId } = useParams();
+    const [updatePost, { isLoading }] = useUpdatePostMutation()
+    const [deletePost] = useDeletePostMutation()
 
     const post = useSelector(state => selectPostById(state, Number(postId)));
     const users = useSelector(selectAllUsers);
@@ -15,23 +16,17 @@ const EditPostForm = () => {
     const [title, setTitle] = useState(post?.title);
     const [content, setContent] = useState(post?.body);
     const [userId, setUserId] = useState(post?.userId);
-    const [requestStatus, setRequestStatus] = useState("idle");
 
-    const isFormValid = [title, content, userId].every(Boolean) && requestStatus === "idle";
+
+    const isFormValid = [title, content, userId].every(Boolean) && !isLoading;
+
     const onChangeTitle = e => setTitle(e.target.value);
     const onChangeContent = e => setContent(e.target.value);
     const onChangeAuthor = e => setUserId(e.target.value);
-    const onClickUpdateButton = () => {
+    const onClickUpdateButton = async () => {
         if (isFormValid) {
             try {
-                setRequestStatus("pending");
-                dispatch(updatePost({
-                    id: post.id,
-                    title,
-                    body: content,
-                    userId,
-                    reactions: post.reactions
-                })).unwrap();
+                await updatePost({ id: post?.id, title, body: content, userId }).unwrap()
 
                 setTitle("");
                 setContent("");
@@ -39,15 +34,12 @@ const EditPostForm = () => {
                 navigate(`/post/${postId}`);
             } catch (err) {
                 console.error("failed to create the post", err);
-            } finally {
-                setRequestStatus("idle");
-            }
+            } 
         }
     };
-    const onClickDeleteButton = () => {
+    const onClickDeleteButton = async () => {
         try {
-            setRequestStatus("pending");
-            dispatch(deletePost({ id: post.id })).unwrap();
+            await deletePost({ id: post?.id }).unwrap()
 
             setTitle("");
             setContent("");
@@ -55,8 +47,6 @@ const EditPostForm = () => {
             navigate("/");
         } catch (err) {
             console.error("failed to delete the post", err);
-        } finally {
-            setRequestStatus("idle");
         }
     };
 

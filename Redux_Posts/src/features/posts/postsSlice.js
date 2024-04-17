@@ -1,15 +1,15 @@
-import {  createSelector,createEntityAdapter} from "@reduxjs/toolkit";
-import axios from "axios"
-import {sub} from 'date-fns';
+import { createEntityAdapter } from "@reduxjs/toolkit";
+import { sub } from 'date-fns';
 import { apiSlice } from "../api/apiSlice";
 
-const postsAdapter=createEntityAdapter({
-    sortComparer:(a, b) => b.date.localeCompare(a.date)
+const postsAdapter = createEntityAdapter({
+    sortComparer: (a, b) => b.date.localeCompare(a.date)
 })
+
 const initialState = postsAdapter.getInitialState()
 
 export const extendedApiSlice = apiSlice.injectEndpoints({
-    endpoints:builder =>({
+    endpoints: builder => ({
         getPosts: builder.query({
             query: () => '/posts',
             transformResponse: responseData => {
@@ -123,7 +123,6 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
                 }
             }
         })
-
     })
 })
 
@@ -135,4 +134,3 @@ export const {
     useDeletePostMutation,
     useAddReactionMutation
 } = extendedApiSlice
-

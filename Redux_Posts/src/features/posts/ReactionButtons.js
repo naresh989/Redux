@@ -1,4 +1,4 @@
-import { useAddReactionMutation } from "./postSlice"
+import { useAddReactionMutation } from './postsSlice'
 
 const reactionEmoji = {
     thumbsUp: '👍',
@@ -9,7 +9,7 @@ const reactionEmoji = {
 }
 
 const ReactionButtons = ({ post }) => {
-    const dispatch = useDispatch()
+    const [addReaction] = useAddReactionMutation()
 
     const reactionButtons = Object.entries(reactionEmoji).map(([name, emoji]) => {
         return (
